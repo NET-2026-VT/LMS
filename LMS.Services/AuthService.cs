@@ -1,6 +1,7 @@
 ﻿using Domain.Models.Configurations;
 using Domain.Models.Entities;
 using Domain.Models.Exceptions;
+using LMS.Infrastructure.Identity;
 using LMS.Shared.DTOs.AuthDtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

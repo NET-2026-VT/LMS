@@ -1,4 +1,5 @@
 ﻿using LMS.Infrastructure.Data;
+using LMS.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,7 @@ internal class DataSeedService : IHostedService
     private readonly IServiceProvider serviceProvider;
     private readonly IConfiguration configuration;
     private readonly ILogger<DataSeedService> logger;
-    private UserManager<ApplicationUser> userManager = null!;
+    private UserManager<Infrastructure.Identity.ApplicationUser> userManager = null!;
     private RoleManager<IdentityRole> roleManager = null!;
     private string _password = null!;
     private const string DemoRole = "Demo";
@@ -43,7 +44,7 @@ internal class DataSeedService : IHostedService
 
         if (await context.Users.AnyAsync(cancellationToken)) return;
 
-        userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>()
+        userManager = scope.ServiceProvider.GetRequiredService<UserManager<Infrastructure.Identity.ApplicationUser>>()
                             ?? throw new ArgumentNullException();
 
         roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>()
@@ -80,7 +81,7 @@ internal class DataSeedService : IHostedService
     }
     private async Task CreateDefaultUserAsync()
     {
-        var user = new ApplicationUser
+        var user = new Infrastructure.Identity.ApplicationUser
         {
             Email = DefaultUserEmail,
             UserName = DefaultUserEmail,
@@ -89,7 +90,7 @@ internal class DataSeedService : IHostedService
         await CreateUserAsync(user, DemoRole);
     }
 
-    private async Task CreateUserAsync(ApplicationUser user, string role)
+    private async Task CreateUserAsync(Infrastructure.Identity.ApplicationUser user, string role)
     {
         var result = await userManager.CreateAsync(user, _password);
 
