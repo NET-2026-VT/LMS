@@ -1,4 +1,5 @@
-﻿using LMS.Infrastructure.Data;
+﻿using Domain.Models.Entities;
+using LMS.Infrastructure.Data;
 using LMS.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ internal class DataSeedService : IHostedService
     private readonly IServiceProvider serviceProvider;
     private readonly IConfiguration configuration;
     private readonly ILogger<DataSeedService> logger;
-    private UserManager<Infrastructure.Identity.ApplicationUser> userManager = null!;
+    private UserManager<ApplicationUser> userManager = null!;
     private RoleManager<IdentityRole> roleManager = null!;
     private string _password = null!;
     private const string DemoRole = "Demo";
@@ -44,7 +45,7 @@ internal class DataSeedService : IHostedService
 
         if (await context.Users.AnyAsync(cancellationToken)) return;
 
-        userManager = scope.ServiceProvider.GetRequiredService<UserManager<Infrastructure.Identity.ApplicationUser>>()
+        userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>()
                             ?? throw new ArgumentNullException();
 
         roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>()
@@ -56,7 +57,7 @@ internal class DataSeedService : IHostedService
         try
         {
             await CreateRolesAsync([DemoRole]);
-            await CreateDefaultUserAsync();
+            await CreateDefaultUserAsync(context);
             logger.LogInformation("Seed complete");
         }
         catch (Exception ex)
@@ -79,19 +80,22 @@ internal class DataSeedService : IHostedService
                     (string.Join("\n", res.Errors.Select(e => $"{e.Code}: {e.Description}")));
         }
     }
-    private async Task CreateDefaultUserAsync()
+    private async Task CreateDefaultUserAsync(ApplicationDbContext context)
     {
-        var user = new Infrastructure.Identity.ApplicationUser
+        var user = new ApplicationUser
         {
             Email = DefaultUserEmail,
             UserName = DefaultUserEmail,
         };
+        user.DomainUser = new User { Id = user.Id, Age = 0 };
 
-        await CreateUserAsync(user, DemoRole);
+        await CreateUserAsync(context, user, DemoRole);
     }
 
-    private async Task CreateUserAsync(Infrastructure.Identity.ApplicationUser user, string role)
+    private async Task CreateUserAsync(ApplicationDbContext context, ApplicationUser user, string role)
     {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
         var result = await userManager.CreateAsync(user, _password);
 
         if (!result.Succeeded)
@@ -104,6 +108,7 @@ internal class DataSeedService : IHostedService
             throw new Exception(string.Join("\n",
             roleResult.Errors.Select(e => $"{e.Code}: {e.Description}")));
 
+        await transaction.CommitAsync();
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
