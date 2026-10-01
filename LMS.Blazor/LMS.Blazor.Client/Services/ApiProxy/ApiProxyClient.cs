@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -34,7 +35,8 @@ public sealed class ApiProxyClient(HttpClient httpClient) : IApiProxyClient
             return default;
         }
 
-        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+        var res = await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken);
+        return res;
     }
 
     private async Task<string> GetAntiforgeryTokenAsync(CancellationToken cancellationToken)
