@@ -12,7 +12,7 @@ public sealed class ApiProxyClient(HttpClient httpClient) : IApiProxyClient
         HttpContent? content = null,
         CancellationToken cancellationToken = default)
     {
-        var proxyUri = ApiProxyPath.Validate(endpoint);
+        var proxyUri = $"api/proxy/{ApiProxyPath.Validate(endpoint)}";
         using var request = new HttpRequestMessage(method, proxyUri)
         {
             Content = content
