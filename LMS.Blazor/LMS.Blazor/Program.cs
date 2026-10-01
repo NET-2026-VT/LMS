@@ -13,6 +13,7 @@ public class Program
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveWebAssemblyComponents()
+            .AddInteractiveServerComponents()
             .AddAuthenticationStateSerialization();
 
         builder.Services.AddCascadingAuthenticationState();
@@ -58,6 +59,7 @@ public class Program
         app.MapRemoteApiProxy();
         app.MapRazorComponents<App>()
             .AddInteractiveWebAssemblyRenderMode()
+            .AddInteractiveServerRenderMode()
             .AddAdditionalAssemblies(typeof(Client._Imports).Assembly);
 
         app.Run();

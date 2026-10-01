@@ -1,5 +1,5 @@
-@page "/auth"
-@rendermode @(new InteractiveAutoRenderMode(prerender: false))
+@page "/authserver"
+@rendermode InteractiveServer
 
 @using LMS.Shared.DTOs.AuthDtos
 @using LMS.Blazor.Client.Services.ApiProxy
@@ -11,9 +11,9 @@
 @inject IApiProxyClient ApiProxyClient
 @inject NavigationManager NavigationManager
 
-<PageTitle>Auth Webassembly</PageTitle>
+<PageTitle>Auth Server</PageTitle>
 
-<h1>Remote API authentication from webassembly</h1>
+<h1>Remote API authentication from server</h1>
 
 <AuthorizeView>
     <Authorized>

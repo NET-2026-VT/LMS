@@ -16,7 +16,15 @@ public static class ReverseProxyExtensions
     {
         // Client components are created once on the server during prerendering.
         // The browser implementation performs the real same-origin proxy request.
-        services.AddScoped<IApiProxyClient, ServerNoOpApiProxyClient>();
+        //services.AddScoped<IApiProxyClient, ServerApiProxyClient>();
+        var remoteApiBaseUrl = configuration[
+            "ReverseProxy:Clusters:remote-api:Destinations:primary:Address"]
+            ?? throw new InvalidOperationException(
+                "The Remote API destination is not configured.");
+
+        services.AddHttpClient<IApiProxyClient, ServerApiProxyClient>(httpClient =>
+            httpClient.BaseAddress = new Uri(remoteApiBaseUrl));
+
 
         // Browser requests authenticate to the BFF with a cookie. Validate an
         // antiforgery token for every unsafe method before YARP adds the JWT and
