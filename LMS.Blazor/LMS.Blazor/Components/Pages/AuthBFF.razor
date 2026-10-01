@@ -1,4 +1,5 @@
-@page "/authserver"
+@page "/authbff"
+
 @rendermode InteractiveServer
 
 @using LMS.Shared.DTOs.AuthDtos
@@ -11,9 +12,10 @@
 @inject IApiProxyClient ApiProxyClient
 @inject NavigationManager NavigationManager
 
-<PageTitle>Auth Server</PageTitle>
+<PageTitle>Auth Interactive Server BFF</PageTitle>
 
-<h1>Remote API authentication from server</h1>
+<h1>Remote API authentication from Server</h1>
+
 <p>The component runs on the Blazor server and calls the Remote API with the session's access token.</p>
 
 <AuthorizeView>
@@ -24,7 +26,7 @@
 
 @if (isLoading)
 {
-    <p><em>Calling the Remote API through the Blazor proxy...</em></p>
+    <p><em>Calling the Remote API from the Blazor server...</em></p>
 }
 else if (demoResult is not null)
 {
@@ -56,6 +58,8 @@ else if (!string.IsNullOrWhiteSpace(errorMessage))
 
             if (result is null)
             {
+                errorMessage = "The Remote API returned no authentication data.";
+                isLoading = false;
                 return;
             }
 
@@ -71,11 +75,10 @@ else if (!string.IsNullOrWhiteSpace(errorMessage))
             NavigationManager.NavigateTo(
                 $"Account/Login?returnUrl={Uri.EscapeDataString(NavigationManager.Uri)}",
                 forceLoad: true);
-            return;
         }
         catch (HttpRequestException exception)
         {
-            errorMessage = $"The proxy request failed: {exception.Message}";
+            errorMessage = $"The Remote API request failed: {exception.Message}";
             isLoading = false;
         }
     }
